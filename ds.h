@@ -49,7 +49,8 @@ public:
 template <typename T>
 class LinkedList {
 public:
-    struct Node { T data; Node* next; Node(T v) : data(v), next(nullptr) {} };
+
+    class Node { public: T data; Node* next; Node(T v) : data(v), next(nullptr) {} };
 private:
     Node* head; Node* tail; int cnt;
 public:
@@ -59,6 +60,7 @@ public:
     bool  empty() const { return head == nullptr; }
     int   size() const { return cnt; }
     void  clear() { while (head) { Node* t = head; head = head->next; delete t; } tail = nullptr; cnt = 0; }
+
     void  pushBack(T v) {
         Node* n = new Node(v);
         if (!head) head = tail = n; else { tail->next = n; tail = n; }
@@ -82,7 +84,7 @@ public:
 template <typename T>
 class DoublyLinkedList {
 public:
-    struct Node { T data; Node* prev; Node* next;
+    class Node { public: T data; Node* prev; Node* next;
                   Node(T v) : data(v), prev(nullptr), next(nullptr) {} };
 private:
     Node* head; Node* tail; int cnt;
@@ -128,7 +130,7 @@ public:
         typename DoublyLinkedList<T>::Node* c = list.getTail();
         int n = 0;
         while (c) {
-            // first string of each entry is the username; show only this user's activity
+
             if (user.empty() || c->data.substr(0, c->data.find(' ')) == user) {
                 cout << "  › " << c->data << "\n";
                 n++;
@@ -272,7 +274,7 @@ public:
 
 //BST(username -> uid directory; sorted listing
 class BST {
-    struct Node { string v; int uid; Node* l; Node* r;
+    class Node { public: string v; int uid; Node* l; Node* r;
                   Node(string x, int i) : v(x), uid(i), l(nullptr), r(nullptr) {} };
     Node* root;
     Node* ins(Node* n, const string& x, int id) {
@@ -301,7 +303,8 @@ public:
 
 
 //RankedPost + MaxHeap(top-posts priority queue by likes)
-struct RankedPost {
+class RankedPost {
+public:
     int likes; int postId;
     bool operator<(const RankedPost& o) const {
         return likes != o.likes ? likes < o.likes : postId < o.postId;
@@ -368,7 +371,8 @@ public:
 
 
 //Boolean Search Expression Evaluator Infix -> Postfix -> evaluate per text.
-struct Token {
+class Token {
+public:
     enum Kind { WORD, AND_OP, OR_OP, LPAREN, RPAREN } kind;
     string word;
     Token() : kind(WORD) {}

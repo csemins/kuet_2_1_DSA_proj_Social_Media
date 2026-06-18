@@ -1,9 +1,3 @@
-/*Files:
-ds.h - pure data structure header (Array, LinkedList, DoublyLinkedList, Deque, Stack, Queue, Graph, BST, MaxHeap, Sorter, boolean search evaluator)
-ui.h - terminal UI helpers (ANSI, termios, prompts)
-family.cpp - domain structs, app state, persistence, logic
-*/
-
 #include <fstream>
 #include <sstream>
 #include <cstring>
@@ -12,8 +6,8 @@ family.cpp - domain structs, app state, persistence, logic
 #include "ds.h"
 #include "ui.h"
 
-//Domain structs
-struct Comment {
+class Comment {
+public:
     int authorId;
     string text;
     string timestamp;
@@ -21,7 +15,8 @@ struct Comment {
     Comment(int a, const string& t, const string& ts) : authorId(a), text(t), timestamp(ts) {}
 };
 
-struct Post {
+class Post {
+public:
     int id;
     int authorId;
     string title;
@@ -39,14 +34,16 @@ struct Post {
              feedNode(nullptr), timeVal(0) {}
 };
 
-struct FriendRequest {
+class FriendRequest {
+public:
     int fromId;
     string fromName;
     FriendRequest() : fromId(-1) {}
     FriendRequest(int id, const string& n) : fromId(id), fromName(n) {}
 };
 
-struct User {
+class User {
+public:
     int id;
     string username;
     string displayName;
@@ -57,7 +54,6 @@ struct User {
     User() : id(-1) {}
 };
 
-//App state
 Array<User> users;
 DoublyLinkedList<Post*> feed;
 Graph social;
@@ -67,7 +63,6 @@ Deque<string> actLog;
 int postCounter = 0;
 int currentUser = -1;
 
-//Persistence helpers
 static string esc(const string& s) {
     string r;
     for (char c : s) { if (c=='|') r+="\\|"; else if (c=='\\') r+="\\\\"; else r+=c; }
@@ -78,6 +73,7 @@ static string unesc(const string& s) {
     for (char c : s) { if (e) { r+=c; e=false; } else if (c=='\\') e=true; else r+=c; }
     return r;
 }
+
 static Array<string> splitPipe(const string& s, int mx=99) {
     Array<string> p; string cur; bool e=false;
     for (size_t i=0;i<s.size();i++) {
@@ -114,6 +110,7 @@ static void loadUsers() {
         userDir.insert(u.username, u.id);
     }
 }
+
 static void savePosts() {
     ensureDir(); ofstream f("data/posts.txt");
     DoublyLinkedList<Post*>::Node* cur=feed.getHead();
@@ -161,6 +158,7 @@ static void loadPosts() {
         post->feedNode=feed.pushBack(post);
     }
 }
+
 static void saveFriends() {
     ensureDir(); ofstream f("data/friends.txt");
     for (int i=0;i<users.size();i++) { f<<i<<":"; social.saveEdges(i,f); }
@@ -179,8 +177,6 @@ static void loadFriends() {
 }
 static void saveAll() { saveUsers(); savePosts(); saveFriends(); }
 
-
-//App helpers
 const string& nameOf(int id) {
     static const string uk="?";
     return (id>=0&&id<users.size()) ? users[id].username : uk;
@@ -205,9 +201,8 @@ void pushNotif(int toUser, const string& msg) {
         users[toUser].notifications.enqueue(msg);
 }
 
-
-//Feed builders
-struct PostTimeKey {
+class PostTimeKey {
+public:
     long long timeVal; int id; Post* ptr;
     bool operator<(const PostTimeKey& o) const {
         return timeVal != o.timeVal ? timeVal < o.timeVal : id < o.id;
@@ -256,8 +251,6 @@ Array<Post*> buildFeedByLikes() {
     return res;
 }
 
-
-//UI sections
 void header(const string& title) {
     cout << "\n" << C::B << C::CYAN;
     rule('='); centred(title); rule('=');
@@ -295,8 +288,6 @@ void printPost(Post* p, int idx=-1, bool full=false) {
     }
 }
 
-
-//Persistent navbar
 void printNavbar() {
     User& u=users[currentUser];
     int notifCount=u.notifications.size()+u.friendRequests.size();
@@ -317,7 +308,6 @@ void printNavbar() {
     rule('=');
 }
 
-//Forward declarations for tabs
 void feedPage();
 void friendsPage();
 void notificationsPage();
@@ -328,7 +318,6 @@ static string toLowerStr(const string& s) {
     string r=s; for (auto& c : r) c = tolower(c); return r;
 }
 
-
 bool handleNavbarChoice(const string& chRaw) {
     string ch=toLowerStr(chRaw);
     if (ch=="tab1") { feedPage(); return true; }
@@ -338,8 +327,6 @@ bool handleNavbarChoice(const string& chRaw) {
     return false;
 }
 
-
-//Post detail
 void postDetail(Post* p) {
     while (true) {
         clearScreen();
@@ -393,8 +380,6 @@ void postDetail(Post* p) {
     }
 }
 
-
-//Feed Page
 void feedPage() {
     bool byLikes=false;
     const int PAGE=5;
@@ -502,8 +487,6 @@ void feedPage() {
     }
 }
 
-
-//Profile Page
 void viewProfile(int uid) {
     if (uid<0||uid>=users.size()) { err("Invalid user."); waitEnter(); return; }
     while (true) {
@@ -559,8 +542,6 @@ void viewProfile(int uid) {
     }
 }
 
-
-//Friends Page
 void friendsPage() {
     if (currentUser==-1) { err("Log in first."); waitEnter(); return; }
     while (currentUser!=-1) {
@@ -636,8 +617,6 @@ void friendsPage() {
     }
 }
 
-
-//Notifications Page
 void notificationsPage() {
     if (currentUser==-1) { err("Log in first."); waitEnter(); return; }
     clearScreen();
@@ -677,9 +656,6 @@ void notificationsPage() {
     rule();
     waitEnter();
 }
-
-
-//Settings Page
 
 void settingsPage() {
     if (currentUser==-1) { err("Log in first."); waitEnter(); return; }
@@ -724,8 +700,6 @@ void settingsPage() {
     }
 }
 
-
-//Pre-login Menu
 void preLoginMenu() {
     while (currentUser==-1) {
         clearScreen();
@@ -783,15 +757,12 @@ void preLoginMenu() {
     }
 }
 
-
 void mainApp() {
     while (currentUser!=-1) {
         feedPage();
     }
 }
 
-
-//main
 int main() {
     ensureDir();
     loadUsers();

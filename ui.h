@@ -11,8 +11,6 @@
 #include <unistd.h>
 using namespace std;
 
-
-//ANSI colour constants
 namespace C {
     const char* R = "\033[0m";
     const char* B = "\033[1m";
@@ -27,8 +25,6 @@ namespace C {
     const char* WHITE = "\033[37m";
 }
 
-
-//Screen layout helpers
 inline void clearScreen() { system("clear"); }
 
 inline int tw() {
@@ -49,15 +45,11 @@ inline void centred(const string& s) {
     cout << s << "\n";
 }
 
-
-//Status message helpers
 inline void ok(const string& m) { cout << C::GREEN << "  ✓  " << m << C::R << "\n"; }
 inline void err(const string& m) { cout << C::RED << "  ✗  " << m << C::R << "\n"; }
 inline void info(const string& m) { cout << C::CYAN << "  ℹ  " << m << C::R << "\n"; }
 inline void warn(const string& m) { cout << C::YELLOW << "  ⚠  " << m << C::R << "\n"; }
 
-
-//Input helpers
 inline string promptLine(const string& msg) {
     cout << C::YELLOW << "  › " << msg << C::R;
     string line; getline(cin, line); return line;
@@ -73,10 +65,10 @@ inline void waitEnter() {
     string t; getline(cin, t);
 }
 
-// Password masking
 inline string readPassword(const string& msg) {
     cout << C::YELLOW << "  › " << msg << C::R << flush;
     if (!isatty(STDIN_FILENO)) { string p; getline(cin, p); cout << "\n"; return p; }
+
     termios old; tcgetattr(STDIN_FILENO, &old);
     termios nw = old; nw.c_lflag &= ~(ECHO | ICANON);
     tcsetattr(STDIN_FILENO, TCSANOW, &nw);
@@ -92,12 +84,10 @@ inline string readPassword(const string& msg) {
     cout << "\n"; return pass;
 }
 
-
-//Timestamp
 inline string nowStamp() {
     time_t t = time(nullptr); char buf[32];
     strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M", localtime(&t));
     return string(buf);
 }
 
-#endif // UI_H
+#endif
