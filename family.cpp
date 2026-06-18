@@ -672,7 +672,7 @@ void notificationsPage() {
     }
 
     sub("Recent Activity");
-    actLog.printAll();
+    actLog.printAll(users[currentUser].username);
 
     rule();
     waitEnter();

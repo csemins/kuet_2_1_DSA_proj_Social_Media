@@ -124,12 +124,16 @@ public:
     }
     bool empty() const { return list.empty(); }
     int  size() const { return list.size(); }
-    void printAll() const {
+    void printAll(const string& user = "") const {
         typename DoublyLinkedList<T>::Node* c = list.getTail();
         int n = 0;
-        while (c && n < maxSz) {
-            cout << "  › " << c->data << "\n";
-            c = c->prev; n++;
+        while (c) {
+            // first string of each entry is the username; show only this user's activity
+            if (user.empty() || c->data.substr(0, c->data.find(' ')) == user) {
+                cout << "  › " << c->data << "\n";
+                n++;
+            }
+            c = c->prev;
         }
         if (n == 0) cout << "  (empty)\n";
     }
